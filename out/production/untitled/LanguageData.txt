@@ -1,0 +1,5 @@
+RN, freunde, "", freund_name -> freunde
+AN, universitat, "freunde", freund_name -> studiert, studieren
+AN, ort, "freunde", freund_name -> wohnen, wohnt, wohnst, leben, lebt, lebst
+AN, arbeitsplatz, "freunde", freund_name -> arbeiten, arbeitet, arbeitest
+AN, beruf, "freunde", freund_name -> berufe, beruf
