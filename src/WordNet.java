@@ -43,7 +43,7 @@ public class WordNet {
 			while( ( curLine = reader.readLine()) != null )
 			{
 				//parse the line  to form the node value and then form the synonyms list.
-				System.out.println(++count);
+				//System.out.println(++count);
 				String[] values = curLine.split(" -> ");
 				String[] nodeParams = values[0].split(", ");
 				Node curNode = new Node(nodeParams[0], nodeParams[1], nodeParams[2], nodeParams[3]);

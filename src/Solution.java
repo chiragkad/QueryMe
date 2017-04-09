@@ -9,9 +9,8 @@ import java.util.Map.Entry;
 public class Solution {
 
     public static void main(String[] args) {
-        //SQLTranslator sqlTranslator = new SQLTranslator("Liste Freunde, die als Informatik-Ingenieur von beruf, auf");
-    	SQLTranslator sqlTranslator = new SQLTranslator("Liste Freunde, die an USC studiert haben und jetzt bei Expedia "
-    			+ "arbeiten, auf");
+        SQLTranslator sqlTranslator = new SQLTranslator("Liste die Besprechungen mit Manohar");
+    	//SQLTranslator sqlTranslator = new SQLTranslator("Liste Freunde, die in LA wohnen und haben APlus als die Blutgruppe, auf");
     	sqlTranslator.parse();
     }
 }

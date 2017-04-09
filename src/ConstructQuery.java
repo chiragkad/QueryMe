@@ -48,7 +48,7 @@ public class ConstructQuery {
 		String conditionClause = getComplexCondition(conditionClauseStartIndex, length - 1);
 		String selectClause = getSelectClause(0, index);
 		StringBuilder query = new StringBuilder();
-		query.append(selectClause).append(conditionClause);
+		query.append(selectClause).append(conditionClause).append(";");
 		return query.toString();
 	}
 	
@@ -69,7 +69,7 @@ public class ConstructQuery {
 			{
 				condition = getCondition( index + 1, endIndex);
 				//TODO need to be careful with the spaces before and after the logical operator.
-				complexCondition.append(words.get(index)).append(condition).append(" ");
+				complexCondition.append(" " +words.get(index)).append(" ").append(condition);
 				endIndex = index - 1;
 				break;
 			}
@@ -90,6 +90,9 @@ public class ConstructQuery {
 	{
 		StringBuilder condition = new StringBuilder();
 		//TODO need to include all valid conditions.
+		//TODO when you have no ON, then combine the left and right subtrees by default operator "="
+		//TODO when  there are no AN or RN for the condition, then retrieve the default attribute key of the only
+		//relation involved and use it for construction.
 		if( (endIndex - startIndex) < 2 )
 			return condition.toString();
 		String leftTreeComp = "", rightTreeComp = "", comparator = "";

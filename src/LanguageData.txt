@@ -3,3 +3,6 @@ AN, universitat, freundes, freund_name -> studiert, studieren
 AN, ort, freundes, freund_name -> wohnen, wohnt, wohnst, leben, lebt, lebst
 AN, arbeitsplatz, freundes, freund_name -> arbeiten, arbeitet, arbeitest
 AN, beruf, freundes, freund_name -> berufe, beruf
+AN, blutgruppe, freundes, freund_name -> blutgruppe
+AN, interesse_name, interesse, freunde_name -> interessieren
+RN, besprechungen, "", person_name -> besprechungen, konferenz, sitzung, tagung, verhandulung 
