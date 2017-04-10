@@ -61,6 +61,8 @@ public class ConstructQuery {
 	private String getComplexCondition(int startIndex, int endIndex)
 	{
 		String condition = new String();
+		if( startIndex == words.size() )
+			return condition;
 		StringBuilder complexCondition = new StringBuilder();
 		for( int index = endIndex; index >= startIndex; index-- )
 		{
@@ -89,22 +91,18 @@ public class ConstructQuery {
 	private String getCondition(int startIndex, int endIndex)
 	{
 		StringBuilder condition = new StringBuilder();
-		//TODO need to include all valid conditions.
-		//TODO when you have no ON, then combine the left and right subtrees by default operator "="
-		//TODO when  there are no AN or RN for the condition, then retrieve the default attribute key of the only
-		//relation involved and use it for construction.
-		if( (endIndex - startIndex) < 2 )
-			return condition.toString();
+		System.out.println("The start and end Indexes for the condtion are:" +startIndex + " "+endIndex);
+		//TODO when  there are no AN or RN for the condition, Use NER to find
+		// the attribute that this VN can be matched with.
 		String leftTreeComp = "", rightTreeComp = "", comparator = "";
 		int numberOfAttributeNodes = 0;
-
 		for( int index = endIndex; index >= startIndex; index-- )
 		{
 			//In future, you need to get the value of the node this ON is mapped to.
 			if( tags.get(index).equals("ON") )
 			{
-				//This should be modified according the node information of the ON.
-				comparator = " = ";
+				// TODO This should be modified according the node information of the ON.
+				comparator = words.get(index);
 			}
 			else if( tags.get(index).equals("VN") || tags.get(index).equals("NTW"))
 			{
@@ -118,7 +116,7 @@ public class ConstructQuery {
 				//TODO assign the default attribute key.
 				Node curNode = nodes.get(words.get(index));
 				fromClauseNodes.add(curNode.value);
-				leftTreeComp = curNode.defaultAttribbuteKey;
+				leftTreeComp = curNode.value + "."+ curNode.defaultAttribbuteKey;
 			}
 			else if( tags.get(index).equals("AN") )
 			{
@@ -128,16 +126,18 @@ public class ConstructQuery {
 				fromClauseNodes.add(curNode.parentName);
 				if( numberOfAttributeNodes == 1 )
 				{
-					leftTreeComp = curNode.value;
+					leftTreeComp = curNode.parentName + "." + curNode.value;
 				}
 				else if( numberOfAttributeNodes == 2 )
 				{
 					rightTreeComp = leftTreeComp;
-					leftTreeComp = curNode.value;
+					leftTreeComp = curNode.parentName + "." + curNode.value;
 				}
 			}
 		}
-		condition.append(leftTreeComp).append(comparator).append(rightTreeComp);
+		if( comparator.isEmpty() )
+			comparator = "=";
+		condition.append(leftTreeComp).append(" " + comparator + " ").append(rightTreeComp);
 		return condition.toString();
 	}
 	
@@ -165,16 +165,15 @@ public class ConstructQuery {
 			if( tags.get(index).equals("RN") )
 			{
 				fromClauseNodes.add(curNode.value);
-				retrieve.append(curNode.value + "." + curNode.defaultAttribbuteKey);
+				retrieve.append(curNode.value + "." + curNode.defaultAttribbuteKey).append(", ");
 			}
 			else if( tags.get(index).equals("AN") )
 			{
 				fromClauseNodes.add(curNode.parentName);
-				retrieve.append(curNode.parentName + "." + curNode.value);
+				retrieve.append(curNode.parentName + "." + curNode.value).append(", ");
 			}
-			if( index != endIndex )
-				retrieve.append(", ");
 		}
+		retrieve.setLength(retrieve.length() - 2);
 		sClause.append(retrieve).append( " FROM ");
 		//Now we need to insert all the parentNodes, whose attributes are encountered in the condtion or
 		//any where in the sentence.
@@ -182,8 +181,10 @@ public class ConstructQuery {
 		StringBuilder fromClause = new StringBuilder();
 		while( setIterator.hasNext() )
 		{
-			fromClause.append(setIterator.next().toString()).append(" , ");
+			fromClause.append(setIterator.next().toString()).append(", ");
 		}
+		fromClause.setLength(fromClause.length() - 2);
+		fromClause.append(" ");
 		sClause.append(fromClause);
 		return sClause.toString();
 	}

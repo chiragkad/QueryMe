@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 public class Solution {
 
     public static void main(String[] args) {
-        SQLTranslator sqlTranslator = new SQLTranslator("Liste die Besprechungen mit Manohar");
+        SQLTranslator sqlTranslator = new SQLTranslator("Liste die Besprechungen mit Amgelika");
     	//SQLTranslator sqlTranslator = new SQLTranslator("Liste Freunde, die in LA wohnen und haben APlus als die Blutgruppe, auf");
     	sqlTranslator.parse();
     }
@@ -19,7 +19,7 @@ class SQLTranslator {
 
     private String text;
     //We use the list of stop words which do not have any information for constructing the SQL query.  
-    private ArrayList<String> stopWords = new ArrayList(Arrays.asList( new String[]{"haben", "die", "auf","der","das","sich","für", "mit", "welche", "den", "aus", "jetzt", "von" } ) );
+    private ArrayList<String> stopWords = new ArrayList(Arrays.asList( new String[]{"haben", "die", "auf","der","das","sich","für", "mit", "welche", "den", "aus", "jetzt", "von","f�r"} ) );
     private String punctutations = ".,:;?";
     //TODO need to add more logical operators and words that closely mean like logical operator.
     private HashMap<String, String> logicalOperator = new HashMap<>();
