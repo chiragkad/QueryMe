@@ -6,5 +6,5 @@ AN, beruf, freundes, freund_name -> berufe, beruf
 AN, blutgruppe, freundes, freund_name -> blutgruppe
 AN, interesse_name, interesse, freunde_name -> interessieren
 RN, besprechungen, "", person_name -> besprechungen, konferenz, sitzung, tagung, verhandulung 
-RN, kurse, "", kurse_name -> kurse, kurs, lehrgang, sehulung, unterricht
-AN, kurse_name, kurse, kurse_name -> kurs_name
+AN, kurse_name, kurse, freund_name -> kurs_name, kurse, kurs, lehrgang, sehulung, unterricht
+AN, semester, kurse, freund_name -> semester, halbjahr

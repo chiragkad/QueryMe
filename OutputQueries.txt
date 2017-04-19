@@ -1,0 +1,14 @@
+SELECT freundes.freund_name FROM freundes WHERE freundes.universitat = USC;
+SELECT freundes.freund_name FROM freundes WHERE freundes.ort = LA AND freundes.blutgruppe = APlus;
+SELECT freundes.freund_name FROM freundes WHERE freundes.arbeitsplatz = Informatik-Ingenieur;
+SELECT freundes.freund_name FROM freundes WHERE interesse.interesse_name = Cricket AND freundes.freund_name = interesse.freund_name;
+SELECT besprechungen.person_name FROM besprechungen WHERE  = Angelika;
+SELECT besprechungen.person_name FROM besprechungen WHERE  = habe;
+SELECT freundes.freund_name FROM freundes WHERE  = Bangalore;
+SELECT freundes.freund_name FROM freundes WHERE  = jünger;
+SELECT freundes.freund_name FROM freundes WHERE freundes.ort = LA;
+SELECT freundes.freund_name FROM freundes WHERE freundes.universitat = USC AND freundes.arbeitsplatz = Volkswagen;
+SELECT freundes.freund_name FROM freundes WHERE kurse.kurse_name = DB AND freundes.freund_name = kurse.freund_name;
+SELECT freundes.freund_name FROM freundes WHERE kurse.kurse_name = DB AND kurse.semester = Frühling AND freundes.freund_name = kurse.freund_name;
+SELECT freundes.freund_name FROM freundes WHERE freundes.universitat = NYU;
+SELECT freundes.freund_name FROM freundes WHERE freundes.blutgruppe = BPlus;

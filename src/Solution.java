@@ -3,15 +3,55 @@ import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.trees.*;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.StringUtils;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class Solution {
-
-    public static void main(String[] args) {
-        SQLTranslator sqlTranslator = new SQLTranslator("Liste die Besprechungen mit Amgelika");
-    	//SQLTranslator sqlTranslator = new SQLTranslator("Liste Freunde, die in LA wohnen und haben APlus als die Blutgruppe, auf");
-    	sqlTranslator.parse();
+public class Solution
+{
+	private PrintWriter writer;
+	
+	public Solution()
+	{
+		 try {
+			writer = new PrintWriter("OutputQueries.txt");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch(Exception e)
+		 {
+			e.printStackTrace();
+		 }
+	}
+	public static void main(String[] args) {
+		
+		try{
+			Solution solution = new Solution();
+	    	InputStream in = solution.getClass().getClassLoader().getResourceAsStream("InputQueries.txt");
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+			String curQuery;
+			while( (curQuery = reader.readLine()) != null )
+			{
+				SQLTranslator sqlTranslator = new SQLTranslator();
+				sqlTranslator.setText(curQuery);
+				String outputQuery = sqlTranslator.parse();
+				solution.writer.println(outputQuery);
+			}
+			reader.close();
+			solution.writer.close();
+    	}
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
     }
 }
 
@@ -34,9 +74,8 @@ class SQLTranslator {
     private boolean isRelational;
 
     //Need to add more sentences in future into "text"
-    public SQLTranslator(String text) {
+    public SQLTranslator() {
     	//text contains the sentence that needs to be converted as SQL query.
-        this.text = text;
         this.logicalOperator.put("und","AND");
         this.logicalOperator.put("oder","OR");
         //List of relational operator and their possible word list in german language.
@@ -44,10 +83,16 @@ class SQLTranslator {
         this.relationalOperator.put("=",new ArrayList( Arrays.asList( new String[]{"bei", "in", "am","an","als"} )));
         this.relationalOperator.put("<",new ArrayList( Arrays.asList( new String[]{"jünger", "unter"} )));
     }
+    
+    public void setText(String text)
+    {
+    	this.text = text;
+    }
 
-    public void parse() {
-    	
-        Annotation germanAnnotation = new Annotation(text);
+    public String parse()
+    {
+    	String finalQuery = "";
+        Annotation germanAnnotation = new Annotation(this.text);
         Properties germanProperties = StringUtils.argsToProperties(
                 new String[]{"-props", "StanfordCoreNLP-german.properties"});
         StanfordCoreNLP pipeline = new StanfordCoreNLP(germanProperties);
@@ -113,9 +158,11 @@ class SQLTranslator {
             }
             System.out.println(wordList.toString());
             System.out.println(tagList.toString());
-            String finalQuery = constructQuery();
+            finalQuery = constructQuery();
             System.out.println("The final resultant Query constructed is:" +finalQuery);
+            return finalQuery;
         }
+		return finalQuery;
     }
     
     /**

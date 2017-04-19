@@ -7,6 +7,8 @@ import java.util.*;
  *
  */
 public class ConstructQuery {
+	
+	public SemanticGraph semanticGraph;
 
 	//This lists are used through out the class, for now use the single copy to construct the query.
 	//All the functions uses this lists for constructing.
@@ -16,6 +18,7 @@ public class ConstructQuery {
 	//This set contains all the attribute names and relational entities that are found in the sentence.
 	//This words can be used to include all the table names in the FromClause.
 	private Set<String> fromClauseNodes = new HashSet<>();
+	private LinkedHashSet<String> relatedNodes = new LinkedHashSet<>();
 	
 	
 	public ConstructQuery(List<String> words, List<String> tags, Map<String, Node> resultNodes)
@@ -48,7 +51,19 @@ public class ConstructQuery {
 		String conditionClause = getComplexCondition(conditionClauseStartIndex, length - 1);
 		String selectClause = getSelectClause(0, index);
 		StringBuilder query = new StringBuilder();
-		query.append(selectClause).append(conditionClause).append(";");
+		query.append(selectClause).append(conditionClause);
+		String path = this.getPath("freundes", "kurse");
+		System.out.println("The path that is generated is:" +path);
+		System.out.println("Size of realted Nodes in this Query:" +relatedNodes.size());
+		List<String> relatedElem = new ArrayList<>(relatedNodes);
+		//TODO in future, handle the case where you ave multiple table names involved in the sentence.
+		String joinPath;
+		if( relatedElem.size() == 2 )
+		{
+			joinPath = getPath(relatedElem.get(0), relatedElem.get(1));
+			query.append(" AND ").append(joinPath);
+		}
+		query.append(";");
 		return query.toString();
 	}
 	
@@ -115,7 +130,8 @@ public class ConstructQuery {
 				//You need to get the default attribute key of this node which is returned from the word net.
 				//TODO assign the default attribute key.
 				Node curNode = nodes.get(words.get(index));
-				fromClauseNodes.add(curNode.value);
+				//fromClauseNodes.add(curNode.value);
+				relatedNodes.add(curNode.value);
 				leftTreeComp = curNode.value + "."+ curNode.defaultAttribbuteKey;
 			}
 			else if( tags.get(index).equals("AN") )
@@ -123,7 +139,8 @@ public class ConstructQuery {
 				numberOfAttributeNodes++;
 				//All the AN's and RN's should have a reserved node containing all the information.
 				Node curNode = nodes.get(words.get(index));
-				fromClauseNodes.add(curNode.parentName);
+				//fromClauseNodes.add(curNode.parentName);
+				relatedNodes.add(curNode.parentName);
 				if( numberOfAttributeNodes == 1 )
 				{
 					leftTreeComp = curNode.parentName + "." + curNode.value;
@@ -165,11 +182,13 @@ public class ConstructQuery {
 			if( tags.get(index).equals("RN") )
 			{
 				fromClauseNodes.add(curNode.value);
+				relatedNodes.add(curNode.value);
 				retrieve.append(curNode.value + "." + curNode.defaultAttribbuteKey).append(", ");
 			}
 			else if( tags.get(index).equals("AN") )
 			{
 				fromClauseNodes.add(curNode.parentName);
+				relatedNodes.add(curNode.parentName);
 				retrieve.append(curNode.parentName + "." + curNode.value).append(", ");
 			}
 		}
@@ -187,5 +206,24 @@ public class ConstructQuery {
 		fromClause.append(" ");
 		sClause.append(fromClause);
 		return sClause.toString();
+	}
+	
+	public String getPath(String parent, String child)
+	{
+		if( semanticGraph == null )
+		{
+			constructGraph();
+		}
+		return semanticGraph.getPath(parent, child, 1);
+	}
+	
+	public void constructGraph()
+	{
+		semanticGraph = new SemanticGraph();
+		//Fill the relations map with all the relations in the database;
+		//TODO in future, you can add the relations from a file.
+		semanticGraph.addRelation("freundes", new KeyNode("freund_name", "PK", "freund_name", "kurse"));
+		semanticGraph.addRelation("freundes", new KeyNode("freund_name", "PK", "person_name", "besprechungen"));
+		semanticGraph.addRelation("freundes", new KeyNode("freund_name", "PK", "freund_name", "interesse"));
 	}
 }
