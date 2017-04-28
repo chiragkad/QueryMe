@@ -58,9 +58,12 @@ public class Solution
 class SQLTranslator {
 
     private String text;
+    //Stanford parser for Named Entity recognition.
+	private NERClassifier NERStanfordClassifier;
     //We use the list of stop words which do not have any information for constructing the SQL query.  
     private ArrayList<String> stopWords = new ArrayList(Arrays.asList( new String[]{"haben", "die", "auf","der","das","sich","für", "mit", "welche", "den", "aus", "jetzt", "von","f�r"} ) );
     private String punctutations = ".,:;?";
+    private HashSet<String> typesOfSQLStatements = new HashSet<>();
     //TODO need to add more logical operators and words that closely mean like logical operator.
     private HashMap<String, String> logicalOperator = new HashMap<>();
     private HashMap<String, ArrayList<String >> relationalOperator = new HashMap<>();
@@ -76,12 +79,17 @@ class SQLTranslator {
     //Need to add more sentences in future into "text"
     public SQLTranslator() {
     	//text contains the sentence that needs to be converted as SQL query.
+    	if( this.NERStanfordClassifier == null )
+    	{
+    		this.NERStanfordClassifier = new NERClassifier();
+    	}
         this.logicalOperator.put("und","AND");
         this.logicalOperator.put("oder","OR");
         //List of relational operator and their possible word list in german language.
         this.relationalOperator.put(">",new ArrayList( Arrays.asList( new String[]{"älter", "über"} )));
         this.relationalOperator.put("=",new ArrayList( Arrays.asList( new String[]{"bei", "in", "am","an","als"} )));
         this.relationalOperator.put("<",new ArrayList( Arrays.asList( new String[]{"jünger", "unter"} )));
+        this.typesOfSQLStatements.addAll(Arrays.asList("liste", "erw�hnen", "machen", "zeigen", "Nennen", "welche", "wann"));
     }
     
     public void setText(String text)
@@ -104,6 +112,12 @@ class SQLTranslator {
             //SemanticGraph dependencyGraph = SemanticGraphFactory.generateUncollapsedDependencies(sentenceTree);
             //.generateCollapsedDependencies( gsf.newGrammaticalStructure(sentenceTree), GrammaticalStructure.Extras.NONE );
             System.out.println(sentenceTree.labeledYield());
+            Map<String, String> nerTags = this.NERStanfordClassifier.classify(this.text);
+            System.out.println("The output from the NER parser is: ");
+            for(Map.Entry<String, String> entry : nerTags.entrySet() )
+            {
+            	System.out.println(entry.getKey() + " " + entry.getValue());
+            }
             for(int i=0;i<sentenceTree.labeledYield().size();i++)
             {
                 String[] words = sentenceTree.labeledYield().get(i).toString().split("/");
@@ -119,6 +133,10 @@ class SQLTranslator {
                     {
                         wordList.add(words[0]);
                         tagList.add("VN");
+                        if( nerTags.containsKey(words[0]) )
+                        {
+                        	System.out.println("****NER classified an NTW to a some other tag.**");
+                        }
                     }
                     else
                     {
@@ -149,8 +167,24 @@ class SQLTranslator {
                             }
                             else
                             {
-                                wordList.add(words[0]);
-                                tagList.add("NTW");
+                            	wordList.add(words[0]);
+                            	if( this.typesOfSQLStatements.contains(words[0].toLowerCase()) )
+                            	{
+                            		tagList.add("SN");
+                            	}
+                            	else
+                            	{
+ 
+	                                //Here is where we need to see if the information from the NER
+	                                // is used to further tag them in some way.
+	                                //TODO call NER tagger if to check if the word can be tagged further.
+	                                //see if they are present.
+	                                if( nerTags.containsKey(words[0]) )
+	                                {
+	                                	System.out.println("****NER classified an NTW to a some other tag.**");
+	                                }
+	                                tagList.add("NTW");
+                            	}
                             }
                         }
                     }
@@ -160,6 +194,7 @@ class SQLTranslator {
             System.out.println(tagList.toString());
             finalQuery = constructQuery();
             System.out.println("The final resultant Query constructed is:" +finalQuery);
+            buildDependencyTree();
             return finalQuery;
         }
 		return finalQuery;
@@ -175,6 +210,14 @@ class SQLTranslator {
     	//Return the query constructed by the queryConstructor instance.
     	return queryConstructor.getQueryFromTags();
     	//return "";
+    }
+    
+    private void buildDependencyTree()
+    {
+    	System.out.println("Control passed to Dependency Parser");
+    	DependencyParser parser = new DependencyParser(wordList, tagList, resultNodes);
+    	parser.constructDependencyTree();
+    	return;
     }
     
 }
